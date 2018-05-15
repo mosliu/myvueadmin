@@ -53,6 +53,8 @@ module.exports = {
       "ignoreTemplateLiterals": true,
       "ignoreRegExpLiterals": true,
       "ignorePattern": "<.*"
-    }]
+    }],
+    'no-console':0,
+    "no-restricted-syntax":0,
   }
 }

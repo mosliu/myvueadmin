@@ -15,7 +15,10 @@ import App from './App';
 import router from './router';
 import store from './store';
 
-Vue.use(ElementUI, { locale });
+Vue.use(ElementUI, {
+  locale,
+  size: 'medium', // set element-ui default size
+});
 
 Vue.config.productionTip = false;
 // eslint-disable-next-line

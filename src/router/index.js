@@ -26,15 +26,18 @@ export const constantRouterMap = [
   { path: '/login', component: () => import('@/views/login/index'), hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
 
+
   {
-    path: '/',
+    path: '',
     component: Layout,
     redirect: '/dashboard',
-    name: 'Dashboard',
-    hidden: true,
+    // name: 'Dashboard',
+    // hidden: false,
     children: [{
       path: 'dashboard',
       component: () => import('@/views/dashboard/index'),
+      name: 'dashboard',
+      meta: { title: 'dashboard', icon: 'dashboard', noCache: true },
     }],
   },
 
@@ -73,6 +76,7 @@ export const constantRouterMap = [
     ],
   },
 
+
   { path: '*', redirect: '/404', hidden: true },
 ];
 
@@ -82,3 +86,18 @@ export default new Router({
   routes: constantRouterMap,
 });
 
+
+export const asyncRouterMap = [
+  {
+    path: '/icon',
+    component: Layout,
+    children: [{
+      path: 'index',
+      component: () => import('@/views/svg-icons/index'),
+      name: 'icons',
+      meta: {
+        title: 'icons', icon: 'icon', noCache: true,
+      },
+    }],
+  },
+];

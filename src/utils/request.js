@@ -8,11 +8,10 @@ const service = axios.create({
   baseURL: process.env.BASE_API, // api的base_url
   timeout: 15000, // 请求超时时间
 });
-
+service.defaults.withCredentials = true;
 // request拦截器
 service.interceptors.request.use((config) => {
   if (store.getters.token) {
-    // eslint-disable-next-line
     config.headers['X-Token'] = getToken(); // 让每个请求携带自定义token 请根据实际情况自行修改
   }
   return config;
@@ -29,6 +28,7 @@ service.interceptors.response.use(
   /**
   * code为非20000是抛错 可结合自己业务进行修改
   */
+
     const res = response.data;
     // eslint-disable-next-line
     // console.log(res);

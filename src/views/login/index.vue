@@ -90,7 +90,6 @@ export default {
             this.loading = false;
           });
         } else {
-          // eslint-disable-next-line
           console.log('error submit!!');
           return false;
         }

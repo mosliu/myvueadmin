@@ -1,24 +1,24 @@
 import request from '@/utils/request';
 // eslint-disable-next-line
-export function versionAdd(form) {
+export function userAdd(form) {
   console.log(form);
   return request({
-    url: '/version/new',
+    url: '/user/new',
     method: 'post',
     data: form,
   });
 }
-export function versionUpdate(form) {
+export function userUpdate(form) {
   console.log(form);
   return request({
-    url: '/version/update',
+    url: '/user/update',
     method: 'post',
     data: form,
   });
 }
 export function getList(params) {
   return request({
-    url: '/version/list',
+    url: '/user/list',
     method: 'get',
     params,
   });
@@ -27,15 +27,15 @@ export function getList(params) {
 
 export function getListByDevice(params) {
   return request({
-    url: '/version/listByDevice',
+    url: '/user/listByDevice',
     method: 'get',
     params,
   });
 }
 
-export function deleteVersion(id) {
+export function deleteUser(id) {
   return request({
-    url: '/version/deleteById',
+    url: '/user/deleteById',
     method: 'post',
     data: { id },
   });

@@ -93,6 +93,7 @@ export default {
             this.$emit('input', editor.getContent());
           });
         },
+        language: 'zh_CN',
         // 整合七牛上传
         // images_dataimg_filter(img) {
         //   setTimeout(() => {

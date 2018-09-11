@@ -1,69 +1,51 @@
 <template>
   <div class="app-container">
-    <el-collapse>
-      <el-collapse-item>
-        <template slot="title">
-          <i class="header-icon el-icon-info"></i>
-          筛选
-        </template>
-        <el-form ref="formA" :model="form" label-width="120px">
-          <el-form-item label="设备名" prop="deviceId">
-            <v-select :options="devicesListOptions" @search="onSearch" v-model="form.deviceId"></v-select>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="onFind">查询</el-button>
-          </el-form-item>
-        </el-form>
-        <div>输入关键字选择设备，查询某设备的版本信息</div>
-        <div>。</div>
-      </el-collapse-item>
-    </el-collapse>
-    <el-row style="margin-bottom: 15px">
-
-    </el-row>
-
     <el-table :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row stripe>
       <el-table-column align="center" label='ID' width="45">
         <template slot-scope="scope">
           {{scope.row.Id}}
         </template>
       </el-table-column>
-      <el-table-column label="Devicename" width="100" align="center">
+      <el-table-column label="LoginName" width="100" align="center">
         <template slot-scope="scope">
-          {{scope.row.Devicename}}
+          {{scope.row.LoginName}}
         </template>
       </el-table-column>
-      <el-table-column label="Type" width="60" align="center">
+      <el-table-column label="RealName" width="100" align="center">
         <template slot-scope="scope">
-          {{scope.row.Type}}
+          {{scope.row.RealName}}
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label="Version" width="90" align="center">
+      <el-table-column label="Status" width="60" align="center">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.Version | statusFilter">{{scope.row.Version}}</el-tag>
+          {{scope.row.Status | statusFilter}}
         </template>
       </el-table-column>
-      <el-table-column align="center" prop="created_at" label="Display_time" width="120">
+      <el-table-column class-name="status-col" label="LastIp" width="130" align="center">
+        <template slot-scope="scope">
+          <el-tag >{{scope.row.LastIp}}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" prop="created_at" label="LastLogin" width="120">
         <template slot-scope="scope">
           <i class="el-icon-time"></i>
-          <span>{{scope.row.CreateDate | formatDate}}</span>
+          <span>{{scope.row.LastLogin | formatDate}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Content" align="center">
+      <el-table-column label="Phone" align="center">
         <template slot-scope="scope">
-          <p v-html='scope.row.Content'></p>
+          <p v-html='scope.row.Phone'></p>
         </template>
       </el-table-column>
-      <el-table-column label="Author" width="90" align="center">
+      <el-table-column label="Email" align="center">
         <template slot-scope="scope">
-          {{scope.row.Author}}
+          <p v-html='scope.row.Email'></p>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="180" align="center">
+      <el-table-column label="操作" width="130" align="center">
         <template slot-scope="scope">
           <el-row>
             <el-button type="primary" circle size="mini" icon="el-icon-edit" @click="editVersion(scope.row)"></el-button>
-            <el-button type="success" circle size="mini" @click="gotoChart(scope.row)">图</el-button>
             <el-button type="danger" circle size="mini" icon="el-icon-delete" @click="deleteOneRecord(scope.$index,scope.row)"></el-button>
           </el-row>
         </template>
@@ -76,14 +58,11 @@
 </template>
 
 <script>
-import { getList, deleteVersion } from '@/api/versions';
+import { getList, deleteUser } from '@/api/users';
 import { formatDateUTC } from '@/utils/date';
-import { deviceSearch } from '@/api/device';
-import vSelect from 'vue-select';
-import _ from 'lodash';
 
 export default {
-  components: { 'v-select': vSelect },
+  components: { },
   data() {
     return {
       list: null,
@@ -103,9 +82,8 @@ export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        published: 'success',
-        draft: 'gray',
-        deleted: 'danger',
+        0: '正常',
+        '-1': '封禁',
       };
       return statusMap[status];
     },
@@ -137,21 +115,7 @@ export default {
     editVersion(obj) {
       this.$router.push({
         path: '/new',
-        name: 'versionNew',
-        params: {
-          name: 'name',
-          dataObj: obj,
-        },
-        query: {
-          id: obj,
-        },
-      });
-    },
-    gotoChart(obj) {
-      this.$message(`Device:${obj.Devicename}`);
-      this.$router.push({
-        path: '/chart',
-        name: 'versionChart',
+        name: 'userNew',
         params: {
           name: 'name',
           dataObj: obj,
@@ -169,7 +133,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning',
       }).then(() => {
-        deleteVersion(obj.Id).then((response) => {
+        deleteUser(obj.Id).then((response) => {
           // console.log(response);
           if (response.code === 20000) {
             this.$message('删除成功!');
@@ -200,28 +164,7 @@ export default {
         });
       });
     },
-    onSearch(search, loading) {
-      loading(true);
-      this.search(loading, search, this);
-    },
-    search: _.debounce((loading, search, vm) => {
-      deviceSearch(search).then((response) => {
-        if (!response.data.devices) return;
-        vm.devicesListOptions = response.data.devices.map(
-          e => ({ id: e.Id, label: e.Devicename }),
-        );
-        loading(false);
-      });
-    }, 350),
-    onFind() {
-      const formcopy = Object.assign({}, this.form);
-      if (this.form.deviceId !== null) {
-        formcopy.deviceId = this.form.deviceId.id;
-        console.log(formcopy);
-      }
-      this.listQuery.form = formcopy;
-      this.fetchData();
-    },
+
   },
 };
 </script>

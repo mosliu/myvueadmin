@@ -1,26 +1,33 @@
 <template>
   <div class="createPost-container">
     <el-form ref="formA" :model="form" label-width="120px" :rules="formRules">
-      <sticky :className="'sub-navbar '+form.status">
-        <el-button type="primary" @click="onSubmit">Create</el-button>
+      <sticky v-if="this.status.edit" :className="'sub-navbar '+form.status">
+        <el-button type="primary" @click="onSubmit">更新</el-button>
         <el-button @click="onCancel">Cancel</el-button>
       </sticky>
+      <sticky v-else :className="'sub-navbar '+form.status">
+        <el-button type="primary" @click="onSubmit">创建</el-button>
+      </sticky>
       <div class="createPost-main-container">
-        <el-form-item label="设备名">
-          <el-select v-model.number="form.deviceId" placeholder="please select device">
+        <el-form-item label="设备名" prop="deviceId">
+          <v-select :options="devicesListOptions" @search="onSearch" v-model="form.deviceId"></v-select>
+          <!-- <el-select v-model.number="form.deviceId" placeholder="please select device">
             <el-option label="CZY-6S" value="122"></el-option>
             <el-option label="XLW(PC)" value="132"></el-option>
-          </el-select>
+          </el-select> -->
         </el-form-item>
         <el-form-item label="版本号" prop="version">
           <el-input v-model="form.version"></el-input>
+        </el-form-item>
+        <el-form-item label="作者:" prop="author">
+          <el-input v-model="form.author"></el-input>
         </el-form-item>
         <el-form-item label="发布时间">
           <el-col :span="11">
             <el-date-picker type="date" placeholder="Pick a date" v-model="form.createDate" style="width: 100%;"></el-date-picker>
           </el-col>
         </el-form-item>
-        <el-form-item label="版本类型">
+        <el-form-item label="版本类型"  prop="type">
           <el-radio-group v-model="form.type">
             <el-radio label="电气" name="type"></el-radio>
             <el-radio label="软件" name="type"></el-radio>
@@ -28,14 +35,12 @@
             <el-radio label="资料" name="type"></el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="版本描述">
-          <div class="editor-container">
+        <el-form-item label="版本描述" prop="content">
+          <div class="editor-container" >
             <tinymce :height=400 ref="editor" v-model="form.content"></tinymce>
           </div>
         </el-form-item>
-        <el-form-item label="作者:">
-          <v-select :options="devicesListOptions" @search="onSearch" v-model="form.author"></v-select>
-        </el-form-item>
+
         <el-form-item>
           <el-button type="primary" @click="onSubmit">Create</el-button>
           <el-button @click="onCancel">Cancel</el-button>
@@ -52,7 +57,7 @@ import Sticky from '@/components/Sticky'; // 粘性header组件
 import vSelect from 'vue-select';
 // import Multiselect from 'vue-multiselect';// 使用的一个多选框组件，element-ui的select不能满足所有需求
 // import 'vue-multiselect/dist/vue-multiselect.min.css';// 多选框组件css
-import { deviceSearch } from '@/api/device';
+import { deviceSearch, getDeviceById } from '@/api/device';
 import { versionAdd } from '@/api/versions';
 // import { debounce } from '@/utils';
 import _ from 'lodash';
@@ -94,6 +99,10 @@ export default {
       }
     };
     return {
+      status: {
+        edit: false,
+        id: -1,
+      },
       form: {
         deviceId: '',
         version: '',
@@ -103,19 +112,62 @@ export default {
         author: '',
       },
       formRules: {
-        // device: [{ required: true, message: '设备不能为空', trigger: 'blur' }],
+        deviceId: [{ required: true, message: '设备不能为空', trigger: 'blur' }],
         version: [
           { required: true, validator: validateVersion, trigger: 'blur' },
         ],
-        // version: [{ required: true, message: '版本号不能为空', trigger: 'blur' }],
-        // content: [{ validator: validateRequire }],
+        author: [{ required: true, message: '内容不能为空', trigger: 'blur' }],
+        type: [{ required: true, message: '版本号不能为空', trigger: 'blur' }],
         content: [{ required: true, message: '内容不能为空', trigger: 'blur' }],
-        // author: [{ required: true, message: '发布者不能为空。', trigger: 'blur' }],
       },
       devicesListOptions: [],
     };
   },
+  mounted() {
+    const dataObj = this.$route.params.dataObj;
+    this.initByCurr(dataObj);
+    console.log(this.status.edit);
+    console.log(this.status.id);
+  },
   methods: {
+    initByCurr(dataObj) {
+      if (typeof (dataObj) === 'undefined') {
+        // 不获取？
+        // this.$route.meta.title = '新建';
+        console.log('New Version');
+        // 置状态位
+        this.status.edit = false;
+        this.status.id = -1;
+      } else {
+        // this.$route.meta.title = '更新';
+        console.log('Edit Version');
+        // console.log(dataObj);
+        // TODO this.form.deviceId: '',
+        this.form.version = dataObj.Version;
+        this.form.createDate = dataObj.CreateDate;
+        this.form.type = dataObj.Type;
+        this.form.content = dataObj.Content;
+        this.form.author = dataObj.Author;
+        getDeviceById(dataObj.DeviceId).then((response) => {
+          console.log(response);
+          if (response.code === 20000) {
+            // console.log('get device:');
+            // console.log(response.data.item);
+            this.form.deviceId = response.data.item;
+            this.form.deviceId.id = response.data.item.Id;
+            this.form.deviceId.label = response.data.item.Devicename;
+          } else {
+            console.log('未获取到应对应的设备');
+            this.form.deviceId.id = dataObj.DeviceId;
+            this.form.deviceId.label = '未获取到';
+          }
+        });
+
+        // 置状态位
+        this.status.edit = true;
+        this.status.id = dataObj.Id;
+      }
+    },
     onSubmit() {
       // console.log(this.form);
 
@@ -125,13 +177,17 @@ export default {
         if (valid) {
           this.loading = true;
           const formcopy = Object.assign({}, this.form);
-          formcopy.author = this.form.author.id;
+          formcopy.deviceId = this.form.deviceId.id;
           // formcopy.deviceId = parseInt(formcopy.deviceId);
-          this.$message('submiting!');
+          // this.$message('submiting!');
           versionAdd(formcopy).then((response) => {
             console.log(response);
             if (response.code === 20000) {
               this.$message(`提交成功，提交后id为${response.data.version.Id}!`);
+              this.$router.push({
+                path: '/list',
+                name: 'versionList',
+              });
             } else {
               this.$message(`提交失败，提交后id为${response.data.error}!`);
             }
@@ -154,6 +210,7 @@ export default {
       });
     },
     onCancel() {
+      // TODO: 未实装
       this.$message({
         message: 'cancel!',
         type: 'warning',
@@ -173,7 +230,7 @@ export default {
         // }));
         // console.log(response.data.devices);
         vm.devicesListOptions = response.data.devices.map(
-          e => ({ id: e.id, label: e.name }),
+          e => ({ id: e.Id, label: e.Devicename }),
         );
         // console.log(vm.devicesListOptions);
         loading(false);

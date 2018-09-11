@@ -176,11 +176,11 @@ export const asyncRouterMap = [{
     },
   },
   {
-    path: 'mychart',
-    component: _import('charts/myChart'),
-    name: 'myChart',
+    path: 'mychart2',
+    component: _import('charts/myChart2'),
+    name: 'myChart2',
     meta: {
-      title: 'myChart',
+      title: 'myChart2',
       noCache: true,
     },
   },
@@ -201,7 +201,7 @@ export const asyncRouterMap = [{
     {
       path: 'new',
       component: _import('version-show/index'),
-      name: 'new',
+      name: 'versionNew',
       meta: {
         title: '新建',
         noCache: true,
@@ -209,12 +209,23 @@ export const asyncRouterMap = [{
       },
     },
     {
+      path: 'list',
+      component: _import('version-show/list'),
+      name: 'versionList',
+      meta: {
+        title: '列表',
+        noCache: true,
+        icon: 'table',
+      },
+    },
+    {
       path: 'mychart',
       component: _import('charts/myChart'),
-      name: 'myChart',
+      name: 'versionChart',
       meta: {
         title: 'myChart',
         noCache: true,
+        icon: 'chart',
       },
     },
 

@@ -7,3 +7,11 @@ export function deviceSearch(name) {
     params: { name },
   });
 }
+
+export function getDeviceById(id) {
+  return request({
+    url: '/devices/getDeviceById',
+    method: 'get',
+    params: { id },
+  });
+}

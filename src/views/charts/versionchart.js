@@ -167,7 +167,7 @@ export const option = {
   },
   calculable: true,
   xAxis: [{
-    min: -3,
+    min: -1,
     // max: 120,
     type: 'value',
     axisLine: {
@@ -179,7 +179,7 @@ export const option = {
   }],
   yAxis: [{
     min: -1,
-    max: 20,
+    // max: 20,
     type: 'value',
     axisLine: {
       onZero: false,

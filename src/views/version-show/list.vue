@@ -124,6 +124,8 @@ export default {
         this.total = response.data.total;
         console.log(this.list);
         this.listLoading = false;
+      }).catch(() => {
+        this.$message('通讯失败，请刷新重试!');
       });
     },
     handleSizeChange(val) {
